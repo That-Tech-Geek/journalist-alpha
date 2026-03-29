@@ -188,7 +188,9 @@ tool_map = {
 
 # --- Prompts ---
 RESEARCH_PROMPT = """
-You are an AI research assistant for financial journalists. Your job is to gather accurate market data by calling the provided tools. Never guess data. If a tool returns empty, say "No data found for the given criteria." After collecting data, provide a concise summary of the findings (no story lead yet). This summary will be shown to the journalist for approval.
+You are an AI research assistant for financial journalists. Your job is to gather accurate market data by calling the provided tools. 
+You also have access to a Python code execution environment. Use it to write and execute Python code to perform complex data analysis, statistical calculations, or data transformations on the financial data you retrieve.
+Never guess data. If a tool returns empty, say "No data found for the given criteria." After collecting data, provide a concise summary of the findings (no story lead yet). This summary will be shown to the journalist for approval.
 """
 
 REPORT_PROMPT = """
@@ -247,7 +249,11 @@ async def handle_chat(body_json):
             
     # Run Gemini Research Phase
     start_time = time.time()
-    model = genai.GenerativeModel(model_name=MODEL_NAME, tools=list(tool_map.values()), system_instruction=RESEARCH_PROMPT)
+    model = genai.GenerativeModel(
+        model_name=MODEL_NAME, 
+        tools=['code_execution'] + list(tool_map.values()), 
+        system_instruction=RESEARCH_PROMPT
+    )
     chat = model.start_chat()
     
     tool_results_log = []
