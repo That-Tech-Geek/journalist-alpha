@@ -41,9 +41,9 @@ def get_db():
         
         # 1. Try parsing as raw JSON
         if cred_env.startswith('{'):
-            # Handle potential escaped newlines from Vercel env vars
-            clean_env = cred_env.replace('\\n', '\n')
-            cred_dict = json.loads(clean_env)
+            # strict=False allows literal newlines (control characters) inside the JSON string,
+            # which often happens when pasting private keys into Vercel.
+            cred_dict = json.loads(cred_env, strict=False)
         else:
             # 2. Try parsing as Base64
             # Fix padding if necessary (Base64 strings length should be a multiple of 4)
