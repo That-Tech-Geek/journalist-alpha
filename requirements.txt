@@ -1,0 +1,9 @@
+google-generativeai==0.8.3
+firebase-admin==6.5.0
+yfinance==0.2.43
+httpx==0.27.0
+pandas==2.2.2
+scipy>=1.13
+statsmodels>=0.14
+hmmlearn>=0.3
+arch>=6.3
