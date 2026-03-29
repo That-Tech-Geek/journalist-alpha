@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { Send, PlusCircle, TrendingUp, Activity, BarChart2, AlertCircle, LogOut } from 'lucide-react';
+import { Send, PlusCircle, TrendingUp, Activity, BarChart2, AlertCircle, LogOut, Search } from 'lucide-react';
 import { marked } from 'marked';
 
 type Message = {
@@ -167,6 +167,13 @@ export default function AlphaCopilot() {
           <p className="text-xs text-slate-400 mt-1">ET AI Hackathon 2026</p>
         </div>
         <div className="flex items-center gap-3">
+          <button 
+            onClick={() => router.push('/deep-research')}
+            className="flex items-center gap-2 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 px-4 py-2 rounded-md text-sm transition-colors border border-indigo-900/50"
+          >
+            <Search className="w-4 h-4" />
+            <span className="hidden sm:inline">Deep Research</span>
+          </button>
           <button 
             onClick={resetThread}
             className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-md text-sm transition-colors border border-slate-700"
