@@ -69,7 +69,7 @@ def get_db():
 
 # Gemini
 genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
-MODEL_NAME = os.environ.get("GEMINI_MODEL", "gemini-3.1-flash-preview")
+MODEL_NAME = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash-lite")
 
 # --- Tools ---
 def get_insider_buys(min_crores: float = 1.0, days_back: int = 7, market_cap_filter: str = 'all') -> list[dict]:
