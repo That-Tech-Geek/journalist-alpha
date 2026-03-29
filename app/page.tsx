@@ -37,7 +37,8 @@ export default function LandingPage() {
             <Activity className="w-6 h-6 text-blue-400" />
             <span className="font-bold text-xl tracking-tight">Alpha Copilot</span>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-4 items-center">
+            <Link href="/deep-research" className="text-sm font-medium hover:text-blue-400 transition-colors py-2">Deep Research</Link>
             {user ? (
               <Link href="/chat" className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-md text-sm font-medium transition-colors">
                 Open Copilot
@@ -71,6 +72,9 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link href={user ? "/chat" : "/login"} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
               {user ? "Open Copilot" : "Get Started for Free"} <ArrowRight className="w-5 h-5" />
+            </Link>
+            <Link href="/deep-research" className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+              Try Deep Research <Search className="w-5 h-5" />
             </Link>
             {!user && (
               <button onClick={handleEvaluatorAccess} className="bg-slate-900 hover:bg-slate-800 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all shadow-sm flex items-center justify-center gap-2">

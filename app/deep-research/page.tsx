@@ -54,12 +54,11 @@ export default function DeepResearch() {
       
       // We use a chat session to maintain context across the iterative loop
       const chat = ai.chats.create({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.1-flash-preview',
         config: {
-          // 2. Tool Calling: Give Gemini access to the built-in Google Search API, Code Execution, and custom Yahoo Finance tools
+          // 2. Tool Calling: Give Gemini access to the built-in Google Search API and custom Yahoo Finance tools
           tools: [
             { googleSearch: {} },
-            { codeExecution: {} },
             {
               functionDeclarations: [
                 {
@@ -94,7 +93,6 @@ export default function DeepResearch() {
 Your goal is to thoroughly research a topic by executing searches, parsing results, identifying gaps, and synthesizing a final report.
 Always use the googleSearch tool to find up-to-date and accurate information.
 If the user asks about specific stocks, use the getHistoricalStockData and getStockQuote tools to fetch real financial data.
-You also have access to a Python code execution environment. Use it to write and execute Python code to perform complex data analysis, statistical calculations, or data transformations on the financial data you retrieve.
 When synthesizing the final report, use Markdown and include citations to the sources you found.`,
         }
       });

@@ -69,7 +69,7 @@ def get_db():
 
 # Gemini
 genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
-MODEL_NAME = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+MODEL_NAME = os.environ.get("GEMINI_MODEL", "gemini-3.1-flash-preview")
 
 # --- Tools ---
 def get_insider_buys(min_crores: float = 1.0, days_back: int = 7, market_cap_filter: str = 'all') -> list[dict]:
@@ -189,7 +189,6 @@ tool_map = {
 # --- Prompts ---
 RESEARCH_PROMPT = """
 You are an AI research assistant for financial journalists. Your job is to gather accurate market data by calling the provided tools. 
-You also have access to a Python code execution environment. Use it to write and execute Python code to perform complex data analysis, statistical calculations, or data transformations on the financial data you retrieve.
 Never guess data. If a tool returns empty, say "No data found for the given criteria." After collecting data, provide a concise summary of the findings (no story lead yet). This summary will be shown to the journalist for approval.
 """
 
@@ -251,7 +250,7 @@ async def handle_chat(body_json):
     start_time = time.time()
     model = genai.GenerativeModel(
         model_name=MODEL_NAME, 
-        tools=['code_execution'] + list(tool_map.values()), 
+        tools=list(tool_map.values()), 
         system_instruction=RESEARCH_PROMPT
     )
     chat = model.start_chat()
