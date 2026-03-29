@@ -54,7 +54,7 @@ export default function DeepResearch() {
       
       // We use a chat session to maintain context across the iterative loop
       const chat = ai.chats.create({
-        model: 'gemini-2.5-flash-lite,
+        model: 'gemini-2.5-flash-lite',
         config: {
           // 2. Tool Calling: Give Gemini access to the built-in Google Search API and custom Yahoo Finance tools
           tools: [
