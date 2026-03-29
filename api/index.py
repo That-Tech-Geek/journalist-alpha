@@ -13,27 +13,59 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 # --- Initialization ---
-# Firebase
-if not firebase_admin._apps:
-    cred_env = os.environ.get("FIRESTORE_CREDENTIALS")
-    if cred_env:
-        try:
-            # Try parsing as raw JSON first
-            if cred_env.strip().startswith('{'):
-                cred_dict = json.loads(cred_env)
-            else:
-                # Fallback to base64 decode
-                cred_json = base64.b64decode(cred_env).decode('utf-8')
-                cred_dict = json.loads(cred_json)
-                
-            cred = credentials.Certificate(cred_dict)
-            firebase_admin.initialize_app(cred)
-        except Exception as e:
-            print(f"Error initializing Firebase: {e}")
-    else:
-        print("Warning: FIRESTORE_CREDENTIALS not found.")
+_db_instance = None
+_db_init_error = None
 
-db = firestore.client() if firebase_admin._apps else None
+def get_db():
+    global _db_instance, _db_init_error
+    
+    if _db_instance is not None:
+        return _db_instance, None
+        
+    if firebase_admin._apps:
+        try:
+            _db_instance = firestore.client()
+            return _db_instance, None
+        except Exception as e:
+            _db_init_error = f"Error getting firestore client: {str(e)}"
+            return None, _db_init_error
+
+    cred_env = os.environ.get("FIRESTORE_CREDENTIALS")
+    if not cred_env:
+        _db_init_error = "FIRESTORE_CREDENTIALS environment variable is missing."
+        return None, _db_init_error
+
+    try:
+        cred_env = cred_env.strip()
+        cred_dict = None
+        
+        # 1. Try parsing as raw JSON
+        if cred_env.startswith('{'):
+            # Handle potential escaped newlines from Vercel env vars
+            clean_env = cred_env.replace('\\n', '\n')
+            cred_dict = json.loads(clean_env)
+        else:
+            # 2. Try parsing as Base64
+            # Fix padding if necessary (Base64 strings length should be a multiple of 4)
+            padded_env = cred_env + '=' * (-len(cred_env) % 4)
+            cred_json = base64.b64decode(padded_env).decode('utf-8')
+            cred_dict = json.loads(cred_json)
+
+        if not cred_dict:
+            raise ValueError("Parsed credentials dictionary is empty.")
+
+        cred = credentials.Certificate(cred_dict)
+        firebase_admin.initialize_app(cred)
+        _db_instance = firestore.client()
+        return _db_instance, None
+        
+    except json.JSONDecodeError as e:
+        _db_init_error = f"JSON parsing error in credentials: {str(e)}"
+    except Exception as e:
+        # Catch base64 binascii errors and other unexpected errors
+        _db_init_error = f"Error initializing Firebase: {str(e)}"
+        
+    return None, _db_init_error
 
 # Gemini
 genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
@@ -201,8 +233,9 @@ async def handle_chat(body_json):
     if not thread_id:
         thread_id = str(uuid.uuid4())
         
+    db, db_error = get_db()
     if not db:
-        return {"error": "Database not initialized. Please check FIRESTORE_CREDENTIALS."}, 500
+        return {"error": f"Database not initialized. Details: {db_error}"}, 500
         
     doc_ref = db.collection('agent_checkpoints').document(thread_id)
     doc = doc_ref.get()
@@ -290,8 +323,9 @@ async def handle_chat(body_json):
         return {"error": str(e)}, 500
 
 async def handle_get_approval(thread_id):
+    db, db_error = get_db()
     if not db:
-        return {"error": "Database not initialized"}, 500
+        return {"error": f"Database not initialized. Details: {db_error}"}, 500
         
     doc = db.collection('approval_queue').document(thread_id).get()
     if doc.exists:
@@ -301,8 +335,9 @@ async def handle_get_approval(thread_id):
 async def handle_post_approve(thread_id, body_json):
     action = body_json.get('action')
     
+    db, db_error = get_db()
     if not db:
-        return {"error": "Database not initialized"}, 500
+        return {"error": f"Database not initialized. Details: {db_error}"}, 500
         
     if action == 'reject':
         db.collection('agent_checkpoints').document(thread_id).update({'phase': 'rejected'})
