@@ -15,11 +15,17 @@ from firebase_admin import credentials, firestore
 # --- Initialization ---
 # Firebase
 if not firebase_admin._apps:
-    cred_b64 = os.environ.get("FIRESTORE_CREDENTIALS")
-    if cred_b64:
+    cred_env = os.environ.get("FIRESTORE_CREDENTIALS")
+    if cred_env:
         try:
-            cred_json = base64.b64decode(cred_b64).decode('utf-8')
-            cred_dict = json.loads(cred_json)
+            # Try parsing as raw JSON first
+            if cred_env.strip().startswith('{'):
+                cred_dict = json.loads(cred_env)
+            else:
+                # Fallback to base64 decode
+                cred_json = base64.b64decode(cred_env).decode('utf-8')
+                cred_dict = json.loads(cred_json)
+                
             cred = credentials.Certificate(cred_dict)
             firebase_admin.initialize_app(cred)
         except Exception as e:
